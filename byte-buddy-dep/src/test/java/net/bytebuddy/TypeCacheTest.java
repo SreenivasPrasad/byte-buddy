@@ -6,6 +6,8 @@ import org.junit.Test;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
@@ -206,4 +208,31 @@ public class TypeCacheTest {
         assertThat(new TypeCache<Object>().sort, is(TypeCache.Sort.STRONG));
         assertThat(new TypeCache.WithInlineExpunction<Object>().sort, is(TypeCache.Sort.STRONG));
     }
+
+    @Test
+    public void testLookupKeyEquals() {
+        ClassLoader cl = new URLClassLoader(new URL[0], null);
+        TypeCache.LookupKey k1 = new TypeCache.LookupKey(cl, 123);
+        TypeCache.LookupKey k2 = new TypeCache.LookupKey(cl, 123);
+        TypeCache.LookupKey k3 = new TypeCache.LookupKey(cl, 456);
+        TypeCache.LookupKey k4 = new TypeCache.LookupKey(new URLClassLoader(new URL[0], null), 123);
+        assertThat(k1.equals(k2), is(true));
+        assertThat(k1.equals(k3), is(true));
+        assertThat(k1.equals(k4), is(false));
+    }
+    @Test
+    public void testEquals() {
+        TypeCache.SimpleKey k1 = new TypeCache.SimpleKey(String.class, Integer.class);
+        TypeCache.SimpleKey k2 = new TypeCache.SimpleKey(String.class, Integer.class);
+        TypeCache.SimpleKey k3 = new TypeCache.SimpleKey(String.class, Long.class);
+        TypeCache.SimpleKey k4 = new TypeCache.SimpleKey(Long.class, String.class);
+        assertThat(k1.equals(k2), is(true));
+        assertThat(k2.equals(k1), is(true));
+        assertThat(k1.equals(k3), is(false));
+        assertThat(k3.equals(k1), is(false));
+        assertThat(k1.equals(k4), is(false));
+        assertThat(k4.equals(k1), is(false));
+    }
 }
+
+
