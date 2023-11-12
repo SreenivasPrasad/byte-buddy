@@ -179,4 +179,13 @@ public class ClassFileVersionTest {
     public static class Foo {
         /* empty */
     }
+    @Test
+    public void testEquals() {
+        ClassFileVersion v1 = ClassFileVersion.ofJavaVersion(8);
+        ClassFileVersion v2 = ClassFileVersion.ofJavaVersion(8);
+        ClassFileVersion v3 = ClassFileVersion.ofJavaVersion(9);
+        assertThat(v1.equals(v2), is(true));
+        assertThat(v1.equals(v3), is(false));
+    }
+
 }
