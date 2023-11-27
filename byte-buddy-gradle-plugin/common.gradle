@@ -21,28 +21,52 @@ if (!raw.startsWith("1.") && raw.contains(".")) {
     current = JavaVersion.toVersion(raw)
 }
 
-def sourceVersion = System.getProperty("net.bytebuddy.gradle.version.source")
-if (sourceVersion != null) {
-    sourceCompatibility = JavaVersion.toVersion(sourceVersion)
-} else if (current > JavaVersion.VERSION_1_9) {
-    sourceCompatibility = JavaVersion.VERSION_1_7
-} else if (current > JavaVersion.VERSION_1_8) {
-    sourceCompatibility = JavaVersion.VERSION_1_6
-} else {
-    sourceCompatibility = JavaVersion.VERSION_1_5
-}
-def targetVersion = System.getProperty("net.bytebuddy.gradle.version.target")
-if (targetVersion != null) {
-    targetCompatibility = JavaVersion.toVersion(targetVersion)
-} else if (current > JavaVersion.VERSION_1_9) {
-    targetCompatibility = JavaVersion.VERSION_1_7
-} else if (current > JavaVersion.VERSION_1_8) {
-    targetCompatibility = JavaVersion.VERSION_1_6
-} else {
-    targetCompatibility = JavaVersion.VERSION_1_5
+def java19Version
+try {
+    java19Version = JavaVersion.valueOf("VERSION_19");
+} catch (Exception ignored) {
+    java19Version = null
 }
 
-logger.info("Compiling class files from version ${sourceCompatibility} to ${targetCompatibility}.")
+def sourceVersion = System.getProperty("net.bytebuddy.gradle.version.source")
+def source
+if (sourceVersion != null) {
+    source = JavaVersion.toVersion(sourceVersion)
+} else if (java19Version != null && current > java19Version) {
+    source = JavaVersion.VERSION_1_8
+} else if (current > JavaVersion.VERSION_1_9) {
+    source = JavaVersion.VERSION_1_7
+} else if (current > JavaVersion.VERSION_1_8) {
+    source = JavaVersion.VERSION_1_6
+} else {
+    source = JavaVersion.VERSION_1_5
+}
+def targetVersion = System.getProperty("net.bytebuddy.gradle.version.target")
+def target
+if (targetVersion != null) {
+    target = JavaVersion.toVersion(targetVersion)
+} else if (java19Version != null && current > java19Version) {
+    target = JavaVersion.VERSION_1_8
+} else if (current > JavaVersion.VERSION_1_9) {
+    target = JavaVersion.VERSION_1_7
+} else if (current > JavaVersion.VERSION_1_8) {
+    target = JavaVersion.VERSION_1_6
+} else {
+    target = JavaVersion.VERSION_1_5
+}
+
+
+if (gradle.gradleVersion.startsWith("2.")) { // support legacy version
+    sourceCompatibility = source
+    targetCompatibility = target
+} else {
+    java {
+        sourceCompatibility = source
+        targetCompatibility = target
+    }
+}
+
+logger.info("Compiling class files from version ${source} to ${target}.")
 
 // Without the extras property, creating a javadoc artifact is not necessary.
 if (Boolean.getBoolean('net.bytebuddy.misc.extras')) {

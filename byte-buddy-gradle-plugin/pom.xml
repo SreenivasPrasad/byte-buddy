@@ -5,7 +5,7 @@
     <parent>
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy-parent</artifactId>
-        <version>1.14.10-SNAPSHOT</version>
+        <version>1.14.11-SNAPSHOT</version>
     </parent>
 
     <artifactId>byte-buddy-gradle-plugin</artifactId>
@@ -194,7 +194,7 @@
             <id>gradle-disabled</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
-                <jdk>[19,)</jdk>
+                <jdk>[22,)</jdk>
             </activation>
             <properties>
                 <gradle.disabled>true</gradle.disabled>
